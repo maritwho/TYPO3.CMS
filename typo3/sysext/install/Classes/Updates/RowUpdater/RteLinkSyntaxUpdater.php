@@ -177,6 +177,14 @@ class RteLinkSyntaxUpdater implements RowUpdaterInterface
                         $linkService = GeneralUtility::makeInstance(LinkService::class);
                         // Ensure the old syntax is converted to the new t3:// syntax, if necessary
                         $linkParts = $linkService->resolve($link);
+                        if (
+                            array_key_exists('type', $linkParts) &&
+                            $linkParts['type'] === LinkService::TYPE_RECORD &&
+                            array_key_exists('url', $linkParts) &&
+                            is_array($linkParts['url'])) {
+                            $linkParts['identifier'] = $linkParts['url']['identifier'];
+                            $linkParts['uid'] = $linkParts['url']['uid'];
+                        }
                         $anchorTagAttributes['href'] = $linkService->asString($linkParts);
                         $newLink = '<a ' . GeneralUtility::implodeAttributes($anchorTagAttributes, true) . '>' .
                             ($isFlexformField ? htmlspecialchars_decode($matches['content']) : $matches['content']) .
